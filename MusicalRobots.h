@@ -9,6 +9,6 @@
 #ifndef ____MusicalRobots__
 #define ____MusicalRobots__
 
-#include <iostream>
+#include "Arduino.h"
 
 #endif /* defined(____MusicalRobots__) */
