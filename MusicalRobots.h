@@ -10,10 +10,8 @@
 #define ____MusicalRobots__
 
 #include "arduino/Arduino.h"
-
-#define MR_PIN_MIDI_IN 2
-#define MR_PIN_MIDI_OUT 1
-
+#include "MR_MIDI.h"
+#include "MR_Solenoid.h"
 
 
 
