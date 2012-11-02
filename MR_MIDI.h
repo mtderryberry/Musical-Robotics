@@ -10,9 +10,11 @@
 #define ____MR_MIDI__
 
 #include "arduino/Arduino.h"
+#include "MR_IO.h"
 
-#define MR_PIN_MIDI_IN 2
-#define MR_PIN_MIDI_OUT 1
+#define MR_MIDI_IN_PIN 0
+#define MR_MIDI_OUT_PIN 1
+#define MR_MIDI_THRU_PIN 1
 
 
 #endif /* defined(____MR_MIDI__) */
