@@ -23,7 +23,6 @@
 #define MR_LED_1_PIN 3
 #define MR_LED_2_PIN 4
 #define MR_LED_3_PIN 5
-
 #define MR_LCD_PIN 10
 
 #endif /* defined(____MR_IO__) */
