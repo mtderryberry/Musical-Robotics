@@ -42,5 +42,6 @@
 #define MR_MIDI_CHANNEL_16 0x0F
 
 void InitializeMIDI(int channel);
-
+void _MIDIAddToBuffer(byte input);
+int ReadMIDI();
 #endif /* defined(____MR_MIDI__) */
