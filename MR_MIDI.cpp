@@ -50,7 +50,10 @@ int ReadMIDI(){
 	//see if there is serial data
 	if (Serial.available() > 0){
 		byte _MIDIByte = byte(Serial.read());
-		
+
+		//make sure we're getting a status message
+		if (Serial.peek() >= 0x80) return 0;
+
 		//so we have MIDI data!  Let's see if it's for us
 		//are we on the right channel?
 		//extract the MIDI channel low nibble (4 LSB's)
@@ -62,12 +65,11 @@ int ReadMIDI(){
 			
 			//parse the rest of the bytes in the message if need be
 			while (Serial.available() > 0) {
-				_MIDIByte = byte(Serial.read());
-
 				//stop parsing when we hit another status byte
-				if (_MIDIByte >= 0x80) break;
+				if (Serial.peek() >= 0x80) break;
 
-				//add to our buffer
+				//add to our buffer as it's more data that we need
+				_MIDIByte = byte(Serial.read());
 				bytesread++;
 				_MIDIAddToBuffer(_MIDIByte);
 			}

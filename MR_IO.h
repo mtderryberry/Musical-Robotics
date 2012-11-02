@@ -15,8 +15,8 @@
 //define all basic IO pins
 //ADC's
 #defind MR_POT_1_PIN 0
-#defind MR_POT_1_PIN 1
-#defind MR_POT_1_PIN 2
+#defind MR_POT_2_PIN 1
+#defind MR_POT_3_PIN 2
 
 //GPIO's
 #define MR_SWITCH_PIN 2
