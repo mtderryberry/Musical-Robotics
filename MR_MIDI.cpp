@@ -7,6 +7,7 @@
 //
 
 #include "MR_MIDI.h"
+
 //initialize our channel to our default channel
 static short int _MIDI_channel = MR_MIDI_DEFAULT_CHANNEL;
 static byte _MIDI_buffer[MR_MIDI_BUFFERSIZE];
@@ -31,11 +32,13 @@ void InitializeMIDI(int channel = MR_MIDI_DEFAULT_CHANNEL) {
  protocol at the standard MIDI baudrate.
  ========================================*/
 void _MIDIAddToBuffer(byte input) {
+	cli();//stop interrupts
 	//prevent segfults
 	if (_MIDI_buffer_queue_size - 1 < MR_MIDI_BUFFERSIZE) {
 		//we have room in our buffer
 		_MIDI_buffer[++_MIDI_buffer_queue_size] = input;
 	}
+	sei();//allow interrupts
 }
 
 /*========================================
@@ -78,4 +81,76 @@ int ReadMIDI(){
 
 	//return the number of read bytes
 	return bytesread;
+}
+
+/*========================================
+ FUNCTION:	_getByteFromMIDIQueue
+ USAGE:		Grabs the next byte in the MIDI queue
+ RETURNS:	byte from queue.
+ ========================================*/
+byte _getByteFromMIDIQueue() {
+	cli();//stop interrupts
+	byte tmp = _MIDI_buffer[0];
+	//shift everything down
+	int i;
+	for (i=0; i < _MIDI_buffer_queue_size - 1; i++) {
+		_MIDI_buffer[i] = _MIDI_buffer[i+1];
+	}
+	//lower our queue pointer
+	if (_MIDI_buffer_queue_size > 0) _MIDI_buffer_queue_size--;
+	sei();//allow interrupts
+	return tmp;
+}
+
+/*========================================
+ FUNCTION:	isSystemMIDI
+ USAGE:		Checks if MIDI byte is data or message
+ RETURNS:	boolean if it is system.
+ ========================================*/
+bool isSystemMIDI(byte input) {
+	return input >= 0x80;
+}
+
+/*========================================
+ FUNCTION:	getNextMIDICommand
+ USAGE:		returns the next MIDI message in teh queue
+ or null if no messages exist.
+ RETURNS:	MIDIConnamd object
+ ========================================*/
+MIDIConnamd getNextMIDICommand() {
+	//check if we have anything in our buffer
+	if(_MIDI_buffer[0]==null) return null;
+
+	//make a temporary MIDICommand object
+	MIDIConnamd tmp;
+	
+	cli();//stop interrupts
+	
+	//We should always get a system message as our first byte
+	//but in case not, here is our erro checking
+	while (!isSystemMIDI(_MIDI_buffer[0])) _getByteFromMIDIQueue(); // remove the first item from the queue
+
+	//well we should have fixed the issue if there was one
+	//but let's make sure we accidentally didn't erase everything
+	if(_MIDI_buffer[0]==null) return null;
+
+	//good we made it this far, so we have a valid MIDI command in our buffer
+
+	//try parsing our midi command
+	tmp.type = MR_MIDI_ERROR; //this is for starters
+
+	byte cmdByte = 0xF0 & _getByteFromMIDIQueue();//our first command byte with channel bits stripped
+
+	//parse the byte into a character
+
+	if (cmdByte == MR_MIDI_SYS_NOTE_OFF) tmp.type = 'f';
+	else if (cmdByte == MR_MIDI_SYS_NOTE_ON) tmp.type = 'o';
+	else if (cmdByte == MR_MIDI_SYS_CONTROL_CHANGE) tmp.type = 'c';
+	
+	//depeding on the type of message, look for more bytes
+	
+
+
+	sei();//allow interrupts
+	return tmp;
 }

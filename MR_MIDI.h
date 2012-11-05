@@ -41,6 +41,18 @@
 #define MR_MIDI_CHANNEL_15 0x0E
 #define MR_MIDI_CHANNEL_16 0x0F
 
+#define MR_MIDI_ERROR 'E'
+
+#define MR_MIDI_SYS_NOTE_OFF 0x80
+#define MR_MIDI_SYS_NOTE_ON 0x90
+#define MR_MIDI_SYS_CONTROL_CHANGE 0xB0
+
+struct MIDIConnamd {
+	char type;
+	int number;
+	int data;
+};
+
 void InitializeMIDI(int channel);
 void _MIDIAddToBuffer(byte input);
 int ReadMIDI();
