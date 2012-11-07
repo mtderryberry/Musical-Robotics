@@ -11,7 +11,7 @@
 
 #include "arduino/Arduino.h"
 #include "MR_IO.h"
-#include "MR_MIDI.h"
+//#include "MR_MIDI.h" <- DEPRICIAATED
 #include "MR_Solenoid.h"
 #include "MR_Stepper.h"
 #include "MR_Motor.h"

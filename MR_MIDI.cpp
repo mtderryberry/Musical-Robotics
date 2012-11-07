@@ -148,7 +148,20 @@ MIDIConnamd getNextMIDICommand() {
 	else if (cmdByte == MR_MIDI_SYS_CONTROL_CHANGE) tmp.type = 'c';
 	
 	//depeding on the type of message, look for more bytes
-	
+	if (tmp.type == 'f') {//note off
+		//we only need the note number
+		
+
+	} if (tmp.type == 'o') {//note on
+		//note number and velocity
+
+	} if (tmp.type == 'c') {//control change
+		//CC number and value
+		
+	} else {
+		tmp.type = 'D'; //D is for "Drop"
+		//we should drop any unuseful data like aftertouch
+	}
 
 
 	sei();//allow interrupts
