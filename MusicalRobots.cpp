@@ -7,10 +7,3 @@
 //
 
 #include "MusicalRobots.h"
-
-IOClearLCD();
-
-char testsrting[] = "Heloo World!";
-
-
-IOPrintLCD(";jands;gjnadsg");
