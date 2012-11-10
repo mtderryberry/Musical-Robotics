@@ -11,7 +11,7 @@
 #ifndef LIB_MIDI_H_
 #define LIB_MIDI_H_
 
-#include <inttypes.h> 
+#include <Arduino.h> 
 
 
 /*  
@@ -38,7 +38,7 @@
                                             // to use a different serial port for MIDI I/O.
 
 
-#define USE_RUNNING_STATUS		1			// Running status enables short messages when sending multiple values
+#define USE_RUNNING_STATUS		0			// Running status enables short messages when sending multiple values
                                             // of the same type and channel.
                                             // Set to 0 if you have troubles with controlling you hardware.
 
@@ -46,7 +46,7 @@
 #define USE_CALLBACKS           1           // Set this to 1 if you want to use callback handlers (to bind your functions to the library).
                                             // To use the callbacks, you need to have COMPILE_MIDI_IN set to 1
 
-#define USE_1BYTE_PARSING       1           // Each call to MIDI.read will only parse one byte (might be faster).
+#define USE_1BYTE_PARSING       0           // Each call to MIDI.read will only parse one byte (might be faster).
 
 
 // END OF CONFIGURATION AREA 
@@ -61,8 +61,8 @@
 #define MIDI_SYSEX_ARRAY_SIZE	255			// Maximum size is 65535 bytes.
 
 /*! Type definition for practical use (because "unsigned char" is a bit long to write.. )*/
-typedef uint8_t byte;
-typedef uint16_t word;
+//typedef uint8_t byte;
+//typedef uint16_t word;
 
 /*! Enumeration of MIDI types */
 enum kMIDIType {
