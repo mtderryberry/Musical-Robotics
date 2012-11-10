@@ -8,10 +8,13 @@
 
 #include "MR_MIDI.h"
 
+extern MIDI_Class MIDI;
+
 //initialize our channel to our default channel
-static short int _MIDI_channel = MR_MIDI_DEFAULT_CHANNEL;
-static byte _MIDI_buffer[MR_MIDI_BUFFERSIZE];
-static int _MIDI_buffer_queue_size -1;
+short int _MIDI_channel = MR_MIDI_DEFAULT_CHANNEL;
+short int _MIDI_velocity_min = MR_MIDI_VELOCITY_DEFAUT_MIN;
+short int _MIDI_velocity_max = MR_MIDI_VELOCITY_DEFAUT_MAX;
+short int _MIDI_velocity_curve = MR_MIDI_VELOCITY_DEFAUT_CURVE;
 
 /*========================================
  FUNCTION:	InitializeMIDI
@@ -19,151 +22,86 @@ static int _MIDI_buffer_queue_size -1;
 			protocol at the standard MIDI baudrate.
 ========================================*/
 void InitializeMIDI(int channel = MR_MIDI_DEFAULT_CHANNEL) {
-	//establish serial communications over default serial ports
-	Serial.begin(MR_MIDI_BAUDRATE);
-
 	//update our MIDI channel if need be
-	_MIDI_channel = constrain(channel, 1 ,16);
+	_MIDI_channel = constrain(channel, 0,16);
+
+	MIDI.begin(_MIDI_channel);
+
+	if (MR_MIDI_DEFAULT_THRU) MIDI.turnThruOn();
+	else MIDI.turnThruOff();
+
+	MIDI.setHandleNoteOn(_handler_MIDI_Note_On);
+	MIDI.setHandleNoteOff(_handler_MIDI_Note_Off);
+	MIDI.setHandleControlChange(_handler_MIDI_CC);
 }
 
-/*========================================
- FUNCTION:	_MIDIAddToBuffer
- USAGE:		Called to initialize the MIDI communications
- protocol at the standard MIDI baudrate.
- ========================================*/
-void _MIDIAddToBuffer(byte input) {
-	cli();//stop interrupts
-	//prevent segfults
-	if (_MIDI_buffer_queue_size - 1 < MR_MIDI_BUFFERSIZE) {
-		//we have room in our buffer
-		_MIDI_buffer[++_MIDI_buffer_queue_size] = input;
-	}
-	sei();//allow interrupts
-}
-
-/*========================================
- FUNCTION:	ReadMIDI
- USAGE:		Reads MIDI into the _MIDI_buffer array
-			in case code executes too slowly.
- RETURNS:	INT bytes successfully read.
- ========================================*/
-int ReadMIDI(){
-	int bytesread = 0;
+void MIDISetChannel(int channel) {
+	channel = _MIDI_channel = constrain(channel, 0,16);
 	
-	//see if there is serial data
-	if (Serial.available() > 0){
-		byte _MIDIByte = byte(Serial.read());
-
-		//make sure we're getting a status message
-		if (Serial.peek() >= 0x80) return 0;
-
-		//so we have MIDI data!  Let's see if it's for us
-		//are we on the right channel?
-		//extract the MIDI channel low nibble (4 LSB's)
-		byte _MIDIByteChannel = 0x0F & _MIDIByte;
-		if (_MIDIByteChannel == _MIDI_channel) {
-			//this matches our channel -> add it to the buffer
-			_MIDIAddToBuffer(_MIDIByte);
-			bytesread++;
-			
-			//parse the rest of the bytes in the message if need be
-			while (Serial.available() > 0) {
-				//stop parsing when we hit another status byte
-				if (Serial.peek() >= 0x80) break;
-
-				//add to our buffer as it's more data that we need
-				_MIDIByte = byte(Serial.read());
-				bytesread++;
-				_MIDIAddToBuffer(_MIDIByte);
-			}
-		}
-	}
-
-	//return the number of read bytes
-	return bytesread;
+	MIDI.setInputChannel(channel);
 }
 
-/*========================================
- FUNCTION:	_getByteFromMIDIQueue
- USAGE:		Grabs the next byte in the MIDI queue
- RETURNS:	byte from queue.
- ========================================*/
-byte _getByteFromMIDIQueue() {
-	cli();//stop interrupts
-	byte tmp = _MIDI_buffer[0];
-	//shift everything down
-	int i;
-	for (i=0; i < _MIDI_buffer_queue_size - 1; i++) {
-		_MIDI_buffer[i] = _MIDI_buffer[i+1];
-	}
-	//lower our queue pointer
-	if (_MIDI_buffer_queue_size > 0) _MIDI_buffer_queue_size--;
-	sei();//allow interrupts
-	return tmp;
+int MIDIGetChannel() {
+	return _MIDI_channel;
 }
 
-/*========================================
- FUNCTION:	isSystemMIDI
- USAGE:		Checks if MIDI byte is data or message
- RETURNS:	boolean if it is system.
- ========================================*/
-bool isSystemMIDI(byte input) {
-	return input >= 0x80;
-}
-
-/*========================================
- FUNCTION:	getNextMIDICommand
- USAGE:		returns the next MIDI message in teh queue
- or null if no messages exist.
- RETURNS:	MIDIConnamd object
- ========================================*/
-MIDIConnamd getNextMIDICommand() {
-	//check if we have anything in our buffer
-	if(_MIDI_buffer[0]==null) return null;
-
-	//make a temporary MIDICommand object
-	MIDIConnamd tmp;
+int MIDIVelocityCurve(int rawVelocity) {
+	rawVelocity = constrain(rawVelocity, 0, 127);
 	
-	cli();//stop interrupts
-	
-	//We should always get a system message as our first byte
-	//but in case not, here is our erro checking
-	while (!isSystemMIDI(_MIDI_buffer[0])) _getByteFromMIDIQueue(); // remove the first item from the queue
-
-	//well we should have fixed the issue if there was one
-	//but let's make sure we accidentally didn't erase everything
-	if(_MIDI_buffer[0]==null) return null;
-
-	//good we made it this far, so we have a valid MIDI command in our buffer
-
-	//try parsing our midi command
-	tmp.type = MR_MIDI_ERROR; //this is for starters
-
-	byte cmdByte = 0xF0 & _getByteFromMIDIQueue();//our first command byte with channel bits stripped
-
-	//parse the byte into a character
-
-	if (cmdByte == MR_MIDI_SYS_NOTE_OFF) tmp.type = 'f';
-	else if (cmdByte == MR_MIDI_SYS_NOTE_ON) tmp.type = 'o';
-	else if (cmdByte == MR_MIDI_SYS_CONTROL_CHANGE) tmp.type = 'c';
-	
-	//depeding on the type of message, look for more bytes
-	if (tmp.type == 'f') {//note off
-		//we only need the note number
-		
-
-	} if (tmp.type == 'o') {//note on
-		//note number and velocity
-
-	} if (tmp.type == 'c') {//control change
-		//CC number and value
-		
+	if (rawVelocity < 64) {
+		rawVelocity = map(rawVelocity, 0, 63, _MIDI_velocity_min, _MIDI_velocity_curve - 1);
 	} else {
-		tmp.type = 'D'; //D is for "Drop"
-		//we should drop any unuseful data like aftertouch
+		rawVelocity = map(rawVelocity, 64, 127, _MIDI_velocity_curve, _MIDI_velocity_max);
 	}
 
-
-	sei();//allow interrupts
-	return tmp;
+	return rawVelocity;
 }
+
+void MIDIConfigureCurve(int min, int max, int curve) {
+	_MIDI_velocity_min = constrain(min, 0, 127);
+	_MIDI_velocity_max = constrain(max, 0, 127);
+	_MIDI_velocity_curve = constrain(curve, 0, 127);
+}
+
+void MIDIBuffer() {
+	MIDI.read();
+}
+
+void MIDIEnableThru() {
+	MIDI.turnThruOn(Full);
+}
+
+void MIDIDisableThru() {
+	MIDI.turnThruOff();
+}
+
+void _handler_MIDI_Note_On(byte channel, byte note, byte velocity) {
+	if (int(channel) == _MIDI_channel) {
+		MIDIHandleNoteOn(int(note), MIDIVelocityCurve(int(velocity)));
+	}
+}
+
+void _handler_MIDI_Note_Off(byte channel, byte note, byte velocity) {
+	if (int(channel) == _MIDI_channel) {
+		MIDIHandleNoteOff(int(note), MIDIVelocityCurve(int(velocity)));
+	}
+}
+
+void _handler_MIDI_CC(byte channel, byte number, byte value) {
+	if (int(channel) == _MIDI_channel) {
+		MIDIHandleControlChange(int(number), int(value));
+	}
+}
+
+void MIDIHandleNoteOn(int note, int scaledVelocity) {
+	
+}
+
+void MIDIHandleNoteOff(int note, int scaledVelocity) {
+
+}
+
+void MIDIHandleControlChange(int cc, int value) {
+
+}
+
