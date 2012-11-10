@@ -9,7 +9,7 @@
 #ifndef ____MRSolenoid__
 #define ____MRSolenoid__
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include "MR_IO.h"
 
 #define MR_SOLENOID_1_PIN 6

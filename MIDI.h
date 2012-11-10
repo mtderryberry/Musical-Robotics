@@ -11,8 +11,7 @@
 #ifndef LIB_MIDI_H_
 #define LIB_MIDI_H_
 
-#include <Arduino.h> 
-
+#include <Arduino.h>
 
 /*  
     ###############################################################

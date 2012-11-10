@@ -9,7 +9,7 @@
 #ifndef ____MR_Motor__
 #define ____MR_Motor__
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include "MR_IO.h"
 
 #define MR_MOTOR_PWM_PIN 8

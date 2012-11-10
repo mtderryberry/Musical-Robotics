@@ -11,6 +11,8 @@
 bool DISPLAY_MENU = true;
 unsigned short int _LCD_BRIGHTNESS = MR_IO_DEFAULT_LCD_BRIGHTNESS;
 
+char SCREEN_BUFFER[50] = "MUSICAL ROBOTS"; //where to buffer the text that goes on the screen
+
 void IOSetupLCD() {
 	MR_LCD_SERIAL_PORT.begin(MR_LCD_SERIAL_BAUDRATE);
 
@@ -45,12 +47,12 @@ void IOPrintLCDChar(char toprint) {
 	MR_LCD_SERIAL_PORT.write( byte(toprint) );
 }
 
-void IOPrintLCD( char word[] ) {
+void IOPrintLCD( char *word ) {
 	MR_LCD_SERIAL_PORT.write( word );
 }
 
 void DisplayMenu() {
-
+	
 }
 
 void DisplayRealTimeStatus() {

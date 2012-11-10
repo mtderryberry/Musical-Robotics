@@ -9,7 +9,7 @@
 #ifndef ____MR_MIDI__
 #define ____MR_MIDI__
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include "MR_IO.h"
 #include "MIDI.h"
 

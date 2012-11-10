@@ -9,7 +9,7 @@
 #ifndef ____MR_Stepper__
 #define ____MR_Stepper__
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include "MR_IO.h"
 
 #define MR_STEPPER_STEP_PIN 13
