@@ -9,51 +9,42 @@
 #ifndef ____MR_MIDI__
 #define ____MR_MIDI__
 
-#include "arduino/Arduino.h"
+#include "Arduino.h"
 #include "MR_IO.h"
+#include "MIDI.h"
+
+extern short int _MIDI_channel;
+extern short int _MIDI_velocity_min;
+extern short int _MIDI_velocity_max;
+extern short int _MIDI_velocity_curve;
+extern MIDI_Class MIDI;
 
 //pins
-#define MR_MIDI_IN_PIN 0
-#define MR_MIDI_OUT_PIN 1
-#define MR_MIDI_THRU_PIN 1
+#define MR_MIDI_IN_PIN 0 //default serial stuff
+#define MR_MIDI_OUT_PIN 1 //default serial stuff
+#define MR_MIDI_THRU_PIN 1 //default serial stuff
 
 //config values
 #define MR_MIDI_DEFAULT_CHANNEL 1 //default MIDI recieve and send channel
-#define MR_MIDI_BAUDRATE 31250 //baudrate for MIDI communication
-#define MR_MIDI_BUFFERSIZE 32 //size in bytes of the MIDI buffer queue
-#define MR_MIDI_ENABLE_DEFAULT_THRU false //enable the default MIDI thru behavior
+#define MR_MIDI_DEFAULT_THRU true
 
-//define MIDI channels
-#define MR_MIDI_CHANNEL_1 0x00
-#define MR_MIDI_CHANNEL_2 0x01
-#define MR_MIDI_CHANNEL_3 0x01
-#define MR_MIDI_CHANNEL_4 0x03
-#define MR_MIDI_CHANNEL_5 0x04
-#define MR_MIDI_CHANNEL_6 0x05
-#define MR_MIDI_CHANNEL_7 0x06
-#define MR_MIDI_CHANNEL_8 0x07
-#define MR_MIDI_CHANNEL_9 0x08
-#define MR_MIDI_CHANNEL_10 0x09
-#define MR_MIDI_CHANNEL_11 0x0A
-#define MR_MIDI_CHANNEL_12 0x0B
-#define MR_MIDI_CHANNEL_13 0x0C
-#define MR_MIDI_CHANNEL_14 0x0D
-#define MR_MIDI_CHANNEL_15 0x0E
-#define MR_MIDI_CHANNEL_16 0x0F
-
-#define MR_MIDI_ERROR 'E'
-
-#define MR_MIDI_SYS_NOTE_OFF 0x80
-#define MR_MIDI_SYS_NOTE_ON 0x90
-#define MR_MIDI_SYS_CONTROL_CHANGE 0xB0
-
-struct MIDIConnamd {
-	char type;
-	int number;
-	int data;
-};
+#define MR_MIDI_VELOCITY_DEFAUT_MIN 0
+#define MR_MIDI_VELOCITY_DEFAUT_MAX 127
+#define MR_MIDI_VELOCITY_DEFAUT_CURVE 64
 
 void InitializeMIDI(int channel);
-void _MIDIAddToBuffer(byte input);
-int ReadMIDI();
+void MIDISetChannel(int channel);
+int MIDIGetChannel();
+int MIDIVelocityCurve(int rawVelocity);
+void MIDIConfigureCurve(int min, int max, int curve);
+void MIDIBuffer();
+void MIDIEnableThru();
+void MIDIDisableThru();
+void _handler_MIDI_Note_On(byte channel, byte note, byte velocity);
+void _handler_MIDI_Note_Off(byte channel, byte note, byte velocity);
+void _handler_MIDI_CC(byte channel, byte number, byte value);
+void MIDIHandleNoteOn(int note, int scaledVelocity);
+void MIDIHandleNoteOff(int note, int scaledVelocity);
+void MIDIHandleControlChange(int cc, int value);
+
 #endif /* defined(____MR_MIDI__) */
