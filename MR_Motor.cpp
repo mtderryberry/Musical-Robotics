@@ -7,25 +7,39 @@
 //
 
 #include "MR_Motor.h"
+bool DRIVE_MOTOR = false;
 
-void setup() {
-    pinMode(MR_MOTOR_PWM_PIN, INPUT);
+void MotorSetup() {
+    pinMode(MR_MOTOR_PWM_PIN, OUTPUT);
     pinMode(MR_MOTOR_F_PIN, OUTPUT);
     pinMode(MR_MOTOR_R_PIN, OUTPUT);
 }
 
-void velocityControl(int velocity) {
-    while(noteOn == true) {
-        analogWrite(MR_MOTOR_F_PIN, velocity);
-    }
-    analogWrite(MR_MOTOR_F_PIN, 0);
+void velocityControlMotor(int velocity, bool direction) {
+	//direction assign
+	if (direction) {
+		digitalWrite(MR_MOTOR_F_PIN, HIGH);
+		digitalWrite(MR_MOTOR_R_PIN, LOW);
+	} else {
+		digitalWrite(MR_MOTOR_F_PIN, LOW);
+		digitalWrite(MR_MOTOR_R_PIN, HIGH);
+	}
 
+	velocity = constrain(velocity, 0, 127);
+	velocity = map(velocity, 0, 127, 0, 255);
+
+	//now assign speed control
+    if (DRIVE_MOTOR) {
+        analogWrite(MR_MOTOR_PWM_PIN, velocity);
+    } else {
+		analogWrite(MR_MOTOR_F_PIN, 0);
+	}
 }
 
-void setNoteBooleanTrue() {
-    noteOn = true;
+void EnableMotor() {
+    DRIVE_MOTOR = true;
 }
 
-void setNoteBooleanFalse() {
-    noteOn = false;
+void DisableMotor() {
+    DRIVE_MOTOR = false;
 }
