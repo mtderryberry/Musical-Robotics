@@ -28,6 +28,7 @@ void INIT() {
 	Scheduler.startLoop(THREAD_UPDATE_GRAPHICS);
 	Scheduler.startLoop(THREAD_DISPLAY_DRIVER);
 	Scheduler.startLoop(THREAD_ROBOT_DRIVER);
+	Scheduler.startLoop(THREAD_NETWORK);
 }
 
 //setup our OS threads
@@ -43,40 +44,46 @@ void THREAD_GENERIC_IO() {
 	//impliment debouncing Finite State Machine for toggling menues
 
 	//parse quadrature encoders
+	
 
 	delay(20);
-	//wait(20);
 	yield();
 }
 
 //handles updating screen text
 void THREAD_UPDATE_GRAPHICS() {
+	//update screen buffer SCREEN_BUFFER
 	if (DISPLAY_MENU) DisplayMenu();
 	else DisplayRealTimeStatus();
 
 	delay(200);
-	//wait(200);
 	yield();
 }
 
 //actually drives serial display
 void THREAD_DISPLAY_DRIVER() {
 	//write serial data to the display every 200 uS
-	//update display
+	//update display with SCREEN_BUFFER
 	IOClearLCD();
 	IOPrintLCD(SCREEN_BUFFER);
 
 	//wait for .2 s
 	delay(400);
-	//wait(400);
 	yield(); //this takes a while to do, and can be interrupted
 }
 
 //drives motors and other output
 void THREAD_ROBOT_DRIVER() {
+	//handle motors
+
+	//handle solenoids
 
 	delay(20);
-	//wait(20);
+}
+
+//inter-unit networking
+void THREAD_NETWORK() {
+	
 }
 
 //we'll update settings in the regular loop()

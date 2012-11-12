@@ -31,5 +31,6 @@ void THREAD_GENERIC_IO();
 void THREAD_UPDATE_GRAPHICS();
 void THREAD_DISPLAY_DRIVER();
 void THREAD_ROBOT_DRIVER();
+void THREAD_NETWORK();
 
 #endif /* defined(____MusicalRobots__) */
