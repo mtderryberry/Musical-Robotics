@@ -25,6 +25,7 @@ void velocityControlMotor(int velocity, bool direction) {
 		digitalWrite(MR_MOTOR_R_PIN, HIGH);
 	}
 
+    //keep velocity within motor constraints
 	velocity = constrain(velocity, 0, 127);
 	velocity = map(velocity, 0, 127, 0, 255);
 
@@ -36,10 +37,12 @@ void velocityControlMotor(int velocity, bool direction) {
 	}
 }
 
+//turn motor on
 void EnableMotor() {
     DRIVE_MOTOR = true;
 }
 
+//turn motor off
 void DisableMotor() {
     DRIVE_MOTOR = false;
 }
