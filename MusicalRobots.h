@@ -22,7 +22,7 @@
 
 extern bool DISPLAY_MENU;
 extern MIDI_Class MIDI;
-extern SchedulerClass Scheduler;
+//extern SchedulerClass Scheduler;
 
 void INIT();
 

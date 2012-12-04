@@ -7,6 +7,7 @@
 //
 
 #include "MR_Stepper.h"
+<<<<<<< HEAD
 int currentDegrees = 0;
 
 void stepperSetup() {
@@ -35,3 +36,9 @@ void stepMotor(int requestedDegrees) {
 
 }
 
+=======
+
+void updateStepper(unsigned short int angle) {
+	
+}
+>>>>>>> ef2821c6f481ecc9575b503d272a6e97403df131
