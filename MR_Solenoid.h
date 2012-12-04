@@ -12,9 +12,23 @@
 #include <Arduino.h>
 #include "MR_IO.h"
 
-#define MR_SOLENOID_1_PIN 6
-#define MR_SOLENOID_2_PIN 7
+#define MR_SOLENOID_1_PIN 25
+#define MR_SOLENOID_2_PIN 23
+#define MR_SOLENOID_3_PIN 28
+#define MR_SOLENOID_4_PIN 27
+#define MR_SOLENOID_5_PIN 24
+#define MR_SOLENOID_6_PIN 26
+#define MR_SOLENOID_7_PIN 52
+#define MR_SOLENOID_8_PIN 53
 
+#define MR_SOLENOID_PAIR1_DEFAULT_MODE 0
+#define MR_SOLENOID_PAIR2_DEFAULT_MODE 0
+#define MR_SOLENOID_PAIR3_DEFAULT_MODE 0
+#define MR_SOLENOID_PAIR4_DEFAULT_MODE 0
 
-
+void setSolenoidPairMode(unsigned short int pair, unsigned short int mode);
+void setSolenoidMinOnTime(int value);
+void setSolenoidMaxOnTime(int value);
+void handleSolenoids();
+void triggerSolenoid(int number, int velocity);
 #endif /* defined(____MRSolenoid__) */

@@ -7,6 +7,8 @@
 //
 
 #include "MR_IO.h"
+#include <EEPROM.h>
+#include "MR_MIDI.h"
 
 //globals
 bool DISPLAY_MENU = false;
@@ -20,6 +22,113 @@ unsigned int MIDI_NOTE_VELOCITY_VAL = 0;
 unsigned short int _LED_TIMER_1 = 0;
 unsigned short int _LED_TIMER_2 = 0;
 unsigned short int _LED_TIMER_3 = 0;
+unsigned short int CURRENT_SETTING_NUMBER = 0;
+unsigned short int CURRENT_SETTING_SELECTED_VALUE = 0;
+
+extern short int _MIDI_channel;
+extern short int _MIDI_velocity_min;
+extern short int _MIDI_velocity_max;
+extern short int _MIDI_velocity_curve;
+
+void nextSetting() {
+	if (DISPLAY_MENU) {
+		CURRENT_SETTING_NUMBER = constrain(CURRENT_SETTING_NUMBER, 0, _MR_SETTTINGS_LIST_INDEX-2)+1;
+		CURRENT_SETTING_SELECTED_VALUE = MR_SETTINGS_LIST[CURRENT_SETTING_NUMBER].value;
+	}
+}
+void previousSetting() {
+	if (DISPLAY_MENU) {
+		CURRENT_SETTING_NUMBER = constrain(CURRENT_SETTING_NUMBER, 1, _MR_SETTTINGS_LIST_INDEX)-1;
+		CURRENT_SETTING_SELECTED_VALUE = MR_SETTINGS_LIST[CURRENT_SETTING_NUMBER].value;
+	}
+}
+
+void loadSetting(int index) {
+	if (DISPLAY_MENU) {
+		MR_SETTINGS_LIST[index].value = EEPROM.read(index);
+	}
+}
+
+void saveSetting(int index, int value) {
+	if (DISPLAY_MENU) {
+		//so the settings are changed
+		value = constrain(value, 0, 255);
+		EEPROM.write(index, byte(value));
+
+		//update based on case
+		switch (index) {
+			case 0:
+				//don't update a variable yet
+				break;
+			case 1:
+				MIDISetChannel(value);
+				break;
+			case 2:
+				MIDIConfigureMinVel(value);
+				break;
+			case 3:
+				MIDIConfigureMaxVel(value);
+				break;
+			case 4:
+				MIDIConfigureCurVel(value);
+				break;
+			case 5:
+				MIDISetTHRU(value);
+				break;
+			case 6:
+				IODisplaySetBrightness(value);
+				break;
+			case 7:
+				setSolenoidPairMode(1, value);
+				break;
+			case 8:
+				setSolenoidPairMode(2, value);
+				break;
+			case 9:
+				setSolenoidPairMode(3, value);
+				break;
+			case 10:
+				setSolenoidPairMode(4, value);
+				break;
+			case 11:
+				setSolenoidMinOnTime(value);
+				break;
+			case 12:
+				setSolenoidMaxOnTime(value);
+				break;
+				
+			default:
+				//save nothing
+				break;
+		}
+	}
+}
+
+void incrimentSetting() {
+	if (DISPLAY_MENU) {
+		int min = MR_SETTINGS_LIST[CURRENT_SETTING_NUMBER].min;
+		int max = MR_SETTINGS_LIST[CURRENT_SETTING_NUMBER].max;
+		CURRENT_SETTING_SELECTED_VALUE = constrain(CURRENT_SETTING_SELECTED_VALUE+1,min,max);
+		//update setting
+		MR_SETTINGS_LIST[CURRENT_SETTING_NUMBER].value = CURRENT_SETTING_SELECTED_VALUE;
+
+		//based on setting number, update the setting
+		saveSetting(CURRENT_SETTING_NUMBER, CURRENT_SETTING_SELECTED_VALUE);
+	}
+}
+
+void decrimentSetting() {
+	if (DISPLAY_MENU) {
+		int min = MR_SETTINGS_LIST[CURRENT_SETTING_NUMBER].min;
+		int max = MR_SETTINGS_LIST[CURRENT_SETTING_NUMBER].max;
+		CURRENT_SETTING_SELECTED_VALUE = constrain(CURRENT_SETTING_SELECTED_VALUE,min+1,max)-1;
+		//update setting
+		MR_SETTINGS_LIST[CURRENT_SETTING_NUMBER].value = CURRENT_SETTING_SELECTED_VALUE;
+
+		//based on setting number, update the setting
+		saveSetting(CURRENT_SETTING_NUMBER, CURRENT_SETTING_SELECTED_VALUE);
+	}
+}
 
 MR_SETTING& _MR_AddGlobalSetting(char* n, int v, int m, int x) {
 	MR_SETTING *temp = new MR_SETTING();
@@ -31,8 +140,8 @@ MR_SETTING& _MR_AddGlobalSetting(char* n, int v, int m, int x) {
 	return *temp;
 }
 
-void addSetting(char* n, int v, int m, int x){
-	MR_SETTINGS_LIST[_MR_SETTTINGS_LIST_INDEX++] = _MR_AddGlobalSetting(n, v, m, x);
+void addSetting(char* n,int m, int x){
+	MR_SETTINGS_LIST[_MR_SETTTINGS_LIST_INDEX++] = _MR_AddGlobalSetting(n, EEPROM.read(_MR_SETTTINGS_LIST_INDEX), m, x);
 }
 
 void IOSetupLCD() {
@@ -56,9 +165,10 @@ void IODisplayOFF() {
 
 void IODisplaySetBrightness(int brightness) {
 	brightness = constrain(brightness, 1, 30);
-	brightness = map(brightness, 1, 30, 128, 158);
-	MR_LCD_SERIAL_PORT.write(0xFE);
-	MR_LCD_SERIAL_PORT.write( byte(brightness) );
+	brightness = brightness+127;
+	MR_LCD_SERIAL_PORT.write(0x7C);
+	MR_LCD_SERIAL_PORT.write( brightness );
+	delay(200);
 }
 
 void IOPrintLCDChar(char toprint) {
@@ -71,7 +181,22 @@ void IOPrintLCD( char *word ) {
 
 void DisplayMenu() {
 	//poll encoders for values
-	SCREEN_BUFFER = "MAIN MENU";
+	char tempbuffer[100];
+	char* name = MR_SETTINGS_LIST[CURRENT_SETTING_NUMBER].title;
+	strcpy(tempbuffer, name);
+
+	//add enough whitespaces to jump to new line
+	int i;
+	for (i=0; i<16-strlen(name); i++) strcat(tempbuffer, " ");
+	strcat(tempbuffer, "Value=");
+
+	char vel[4];
+	int tempvel = CURRENT_SETTING_SELECTED_VALUE;
+	itoa(tempvel, vel, 10);
+	strcat(tempbuffer, vel);
+
+	//update the buffer
+	SCREEN_BUFFER = tempbuffer;
 }
 
 void DisplayRealTimeStatus() {

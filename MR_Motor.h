@@ -12,8 +12,8 @@
 #include "Arduino.h"
 #include "MR_IO.h"
 
-#define MR_MOTOR_PWM_PIN 8
-#define MR_MOTOR_F_PIN 9
-#define MR_MOTOR_R_PIN 11
+#define MR_MOTOR_PWM_PIN 51
+#define MR_MOTOR_F_PIN 49
+#define MR_MOTOR_R_PIN 50
 
 #endif /* defined(____MR_Motor__) */

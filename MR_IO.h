@@ -73,6 +73,12 @@ void IOInitializePins();
 void ToggleMenu();
 void handleLEDs();
 void blinkLED(unsigned short int led);
-void addSetting(char* n, int v, int m, int x);
+void addSetting(char* n, int m, int x);
+void nextSetting();
+void previousSetting();
+void loadSetting(int index);
+void saveSetting(int index, int value);
+void incrimentSetting();
+void decrimentSetting();
 
 #endif /* defined(____MR_IO__) */

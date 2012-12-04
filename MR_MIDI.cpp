@@ -64,6 +64,18 @@ void MIDIConfigureCurve(int min, int max, int curve) {
 	_MIDI_velocity_curve = constrain(curve, 0, 127);
 }
 
+void MIDIConfigureMinVel(int min){
+	_MIDI_velocity_min = constrain(min, 0, 127);
+}
+
+void MIDIConfigureMaxVel(int max){
+	_MIDI_velocity_max = constrain(max, 0, 127);
+}
+
+void MIDIConfigureCurVel(int curve){
+	_MIDI_velocity_curve = constrain(curve, 0, 127);
+}
+
 void MIDIBuffer() {
 	MIDI.read();
 }
@@ -74,6 +86,11 @@ void MIDIEnableThru() {
 
 void MIDIDisableThru() {
 	MIDI.turnThruOff();
+}
+
+void MIDISetTHRU(int value) {
+	if (value ==1) MIDIEnableThru();
+	else MIDIDisableThru();
 }
 
 void _handler_MIDI_Note_On(byte channel, byte note, byte velocity) {
@@ -156,8 +173,23 @@ void MIDIHandleNoteOn(int note, int rawVelocity) {
 
 	//handle MIDI cases
 
-	if (notenumber == 0 && octave == 1) {
-		DISPLAY_MENU = !DISPLAY_MENU;
+	//programming MIDI
+	if(octave == 1){
+		if (notenumber == 0) {
+			DISPLAY_MENU = !DISPLAY_MENU;
+		}
+		if (notenumber == 2) {
+			previousSetting();
+		}
+		if (notenumber == 4) {
+			nextSetting();
+		}
+		if (notenumber == 5) {
+			decrimentSetting();
+		}
+		if (notenumber == 7) {
+			incrimentSetting();
+		}
 	}
 }
 

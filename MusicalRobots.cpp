@@ -13,6 +13,8 @@ extern bool DISPLAY_MENU; //menu resource semaphore/mutex
 extern char* SCREEN_BUFFER;
 char* _OLD_SCREEN_BUFFER = "";
 extern unsigned int MIDI_NOTE_VELOCITY_VAL;
+extern unsigned short int CURRENT_SETTING_SELECTED_VALUE;
+extern MR_SETTING* MR_SETTINGS_LIST;
 
 void INIT() {
 	//setup our I/O Pins
@@ -62,10 +64,38 @@ void INIT() {
 	IOPrintLCD("Booting...");
 	delay(200);
 	IODisplayON();
-
+	delay(200);
+	IODisplaySetBrightness(2);
+	delay(400);
+	IODisplaySetBrightness(30);
+	delay(400);
 	//initialize global settings
-	addSetting("Test", 5, 0, 100);
-	
+	//don't change the order of these!
+	addSetting("Awesomeness", 0, 100);//0
+	addSetting("MIDI Channel", 1, 16);//1
+	addSetting("Min Velocity", 0, 126);//2
+	addSetting("Max Velocty", 1, 127);//3
+	addSetting("Vel Curve", 1, 126);//4
+	addSetting("Enable THRU", 0, 1);//5
+	addSetting("Backlight", 1, 30);//6
+	addSetting("Sol 1&2 Mode", 0, 1);//7
+	addSetting("Sol 3&4 Mode", 0, 1);//8
+	addSetting("Sol 5&6 Mode", 0, 1);//9
+	addSetting("Sol 7&8 Mode", 0, 1);//10
+	addSetting("S Min On Time", 1, 254);//11
+	addSetting("S Max On Time", 2, 255);//12
+
+	//initialize initial setting menu value
+	CURRENT_SETTING_SELECTED_VALUE = EEPROM.read(0);
+
+	//load the rest of the settings into our global variables
+	for (i=0; i<_MR_SETTTINGS_LIST_INDEX; i++) {
+		saveSetting(i, MR_SETTINGS_LIST[i].value); //hacky way of reassigning to memory
+	}
+	delay(200);
+	//bug fix to establish final brightness
+	IODisplaySetBrightness(EEPROM.read(6));
+	delay(200);
 }
 
 //setup our OS threads
@@ -79,25 +109,18 @@ void THREAD_MIDI_HANDLING() {
 //handles buttons and encoders
 void THREAD_GENERIC_IO() {
 	//impliment debouncing Finite State Machine for toggling menues
-
-	handleLEDs();
-
 	ToggleMenu();
+	//handle LED blinks
+	handleLEDs();
 	//delay(20);
 	//yield();
 }
 
 //handles updating screen text
 void THREAD_UPDATE_GRAPHICS() {
-	//update screen buffer SCREEN_BUFFER
-	if (DISPLAY_MENU) {
-		DisplayMenu();
-		//digitalWrite(MR_LED_3_PIN, HIGH);
-	}
-	else {
-		DisplayRealTimeStatus();
-		//digitalWrite(MR_LED_3_PIN, LOW);
-	}
+	//update screen buffer SCREEN_BUFFER based on current mode
+	if (DISPLAY_MENU) DisplayMenu();
+	else DisplayRealTimeStatus();
 
 	//delay(200);
 	//yield();
@@ -122,10 +145,10 @@ void THREAD_DISPLAY_DRIVER() {
 
 //drives motors and other output
 void THREAD_ROBOT_DRIVER() {
-	//handle motors
+	//handle motors <- maybe
 
 	//handle solenoids
-
+	handleSolenoids();
 	//delay(20);
 	//yield();
 }
