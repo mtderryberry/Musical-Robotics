@@ -204,6 +204,7 @@ void MIDIHandleControlChange(int cc, int value) {
 	char vel[4];
 	itoa(cc, vel, 10);
 	strcat(tempbuffer, vel);
+	strcat(tempbuffer, " ");
 
 	//update globals
 	strcpy(MIDI_NOTE_STRING, tempbuffer);

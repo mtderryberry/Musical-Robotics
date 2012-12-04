@@ -67,5 +67,45 @@ void handleSolenoids(){
 }
 
 void triggerSolenoid(int number, int velocity) {
+	if ((number == 1 || number == 2) && _SOLENOID_PAIR_1_MODE==1) {//paired mode
+		_SOLENOID_1_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_2_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_1_STATE = 1;
+		_SOLENOID_1_STATE = 0;
+	}
+}
+
+bool getSolenoidState(int number){
+	int state = 0;
+	switch (number) {
+		case 1:
+			state = _SOLENOID_1_STATE;
+			break;
+		case 2:
+			state = _SOLENOID_2_STATE;
+			break;
+		case 3:
+			state = _SOLENOID_3_STATE;
+			break;
+		case 4:
+			state = _SOLENOID_4_STATE;
+			break;
+		case 5:
+			state = _SOLENOID_5_STATE;
+			break;
+		case 6:
+			state = _SOLENOID_6_STATE;
+			break;
+		case 7:
+			state = _SOLENOID_7_STATE;
+			break;
+		case 8:
+			state = _SOLENOID_8_STATE;
+			break;
+	}
 	
+	if (state==0) {
+		return false;
+	}
+	return true;
 }

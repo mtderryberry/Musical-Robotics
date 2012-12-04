@@ -26,9 +26,12 @@
 #define MR_SOLENOID_PAIR3_DEFAULT_MODE 0
 #define MR_SOLENOID_PAIR4_DEFAULT_MODE 0
 
+#define MR_NUM_SOLENOIDS 8
+
 void setSolenoidPairMode(unsigned short int pair, unsigned short int mode);
 void setSolenoidMinOnTime(int value);
 void setSolenoidMaxOnTime(int value);
 void handleSolenoids();
 void triggerSolenoid(int number, int velocity);
+bool getSolenoidState(int number);
 #endif /* defined(____MRSolenoid__) */

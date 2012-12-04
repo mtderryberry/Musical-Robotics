@@ -211,8 +211,17 @@ void DisplayRealTimeStatus() {
 	itoa(tempvel, vel, 10);
 	strcat(tempbuffer, vel);
 
+	int i;
+	for (i=0; i<3-strlen(vel); i++) strcat(tempbuffer, " ");
+
 	//add other screen buffer elements
-	
+	for (i=0; i<MR_NUM_SOLENOIDS; i++) {
+		if (getSolenoidState(i+1)) {
+			strcat(tempbuffer, "#");
+		} else {
+			strcat(tempbuffer, " ");
+		}
+	}
 
 	//update the buffer
 	SCREEN_BUFFER = tempbuffer;

@@ -96,6 +96,8 @@ void INIT() {
 	//bug fix to establish final brightness
 	IODisplaySetBrightness(EEPROM.read(6));
 	delay(200);
+
+	triggerSolenoid(1, 127);
 }
 
 //setup our OS threads
