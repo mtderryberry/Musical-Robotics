@@ -7,3 +7,7 @@
 //
 
 #include "MR_Stepper.h"
+
+void updateStepper(unsigned short int angle) {
+	
+}

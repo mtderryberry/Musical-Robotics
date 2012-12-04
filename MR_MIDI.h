@@ -11,6 +11,9 @@
 
 #include <Arduino.h>
 #include "MR_IO.h"
+#include "MR_Stepper.h"
+#include "MR_Motor.h"
+#include "MR_Solenoid.h"
 #include "MIDI.h"
 
 extern short int _MIDI_channel;
@@ -43,7 +46,7 @@ void MIDIDisableThru();
 void _handler_MIDI_Note_On(byte channel, byte note, byte velocity);
 void _handler_MIDI_Note_Off(byte channel, byte note, byte velocity);
 void _handler_MIDI_CC(byte channel, byte number, byte value);
-void MIDIHandleNoteOn(int note, int scaledVelocity);
+void MIDIHandleNoteOn(int note, int rawVelocity);
 void MIDIHandleNoteOff(int note, int scaledVelocity);
 void MIDIHandleControlChange(int cc, int value);
 
