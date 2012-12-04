@@ -15,6 +15,7 @@ unsigned short int _SOLENOID_PAIR_4_MODE = MR_SOLENOID_PAIR4_DEFAULT_MODE;
 unsigned short int _SOLENOID_MIN_ON_TIME =1;
 unsigned short int _SOLENOID_MAX_ON_TIME = 255;
 
+//timer to figure out when to turn off solenoid
 unsigned int _SOLENOID_1_LAST_TRIGGER_TIME = 0;
 unsigned int _SOLENOID_2_LAST_TRIGGER_TIME = 0;
 unsigned int _SOLENOID_3_LAST_TRIGGER_TIME = 0;
@@ -24,6 +25,7 @@ unsigned int _SOLENOID_6_LAST_TRIGGER_TIME = 0;
 unsigned int _SOLENOID_7_LAST_TRIGGER_TIME = 0;
 unsigned int _SOLENOID_8_LAST_TRIGGER_TIME = 0;
 
+//states used for diplaying status 
 unsigned int _SOLENOID_1_STATE = 0;//assume 0 to be idle (returned and resting);
 unsigned int _SOLENOID_2_STATE = 0;
 unsigned int _SOLENOID_3_STATE = 0;
@@ -32,6 +34,35 @@ unsigned int _SOLENOID_5_STATE = 0;
 unsigned int _SOLENOID_6_STATE = 0;
 unsigned int _SOLENOID_7_STATE = 0;
 unsigned int _SOLENOID_8_STATE = 0;
+
+//velocities used for controlling solenoids
+unsigned int _SOLENOID_1_VEL = 0;//assume 0 to be idle (returned and resting);
+unsigned int _SOLENOID_2_VEL = 0;
+unsigned int _SOLENOID_3_VEL = 0;
+unsigned int _SOLENOID_4_VEL = 0;
+unsigned int _SOLENOID_5_VEL = 0;
+unsigned int _SOLENOID_6_VEL = 0;
+unsigned int _SOLENOID_7_VEL = 0;
+unsigned int _SOLENOID_8_VEL = 0;
+
+void SetupSolenoids() {
+	pinMode(MR_SOLENOID_1_PIN, OUTPUT);
+	pinMode(MR_SOLENOID_2_PIN, OUTPUT);
+	pinMode(MR_SOLENOID_3_PIN, OUTPUT);
+	pinMode(MR_SOLENOID_4_PIN, OUTPUT);
+	pinMode(MR_SOLENOID_5_PIN, OUTPUT);
+	pinMode(MR_SOLENOID_6_PIN, OUTPUT);
+	pinMode(MR_SOLENOID_7_PIN, OUTPUT);
+	pinMode(MR_SOLENOID_8_PIN, OUTPUT);
+	digitalWrite(MR_SOLENOID_1_PIN, LOW);
+	digitalWrite(MR_SOLENOID_2_PIN, LOW);
+	digitalWrite(MR_SOLENOID_3_PIN, LOW);
+	digitalWrite(MR_SOLENOID_4_PIN, LOW);
+	digitalWrite(MR_SOLENOID_5_PIN, LOW);
+	digitalWrite(MR_SOLENOID_6_PIN, LOW);
+	digitalWrite(MR_SOLENOID_7_PIN, LOW);
+	digitalWrite(MR_SOLENOID_8_PIN, LOW);
+}
 
 void setSolenoidMinOnTime(int value){
 	value = constrain(value, 1, 254);
@@ -62,8 +93,123 @@ void setSolenoidPairMode(unsigned short int pair, unsigned short int mode){
 	}
 }
 
+int convertVeltoTime(int vel) {
+	if (vel==0) return 0;
+	return MR_SOLENOID_MILLIS_PRESCALER * map(vel, 1, 127, _SOLENOID_MIN_ON_TIME, _SOLENOID_MAX_ON_TIME);
+}
+
 void handleSolenoids(){
-	
+	//group 1 and 2
+	if (_SOLENOID_PAIR_1_MODE==0) {//normal mode
+		if (millis() >= _SOLENOID_1_LAST_TRIGGER_TIME + convertVeltoTime(_SOLENOID_1_VEL)) {
+			//kill solenoid one
+			_SOLENOID_1_STATE = 0;
+			_SOLENOID_1_VEL =0;
+			digitalWrite(MR_SOLENOID_1_PIN, LOW);
+		}
+		if (millis() >= _SOLENOID_2_LAST_TRIGGER_TIME + convertVeltoTime(_SOLENOID_2_VEL)) {
+			//kill solenoid two
+			_SOLENOID_2_STATE = 0;
+			_SOLENOID_2_VEL =0;
+			digitalWrite(MR_SOLENOID_2_PIN, LOW);
+		}
+	} else if(_SOLENOID_PAIR_1_MODE==1){ //paired mode
+		if (millis() >= _SOLENOID_1_LAST_TRIGGER_TIME + convertVeltoTime(_SOLENOID_1_VEL)){//we can release the attack
+			_SOLENOID_1_STATE = 0;
+			_SOLENOID_1_VEL =0;
+			_SOLENOID_2_STATE = 0;
+			_SOLENOID_2_VEL =0;
+			digitalWrite(MR_SOLENOID_1_PIN, LOW);
+			analogWrite(MR_SOLENOID_2_PIN, MR_SOLENOID_PAIRED_RETURN_DUTY_CYCLE);
+		} else {//continue attacking
+			digitalWrite(MR_SOLENOID_1_PIN, HIGH);
+			digitalWrite(MR_SOLENOID_2_PIN, LOW);
+		}
+	}
+
+	//group 3 and 4
+	if (_SOLENOID_PAIR_2_MODE==0) {//normal mode
+		if (millis() >= _SOLENOID_3_LAST_TRIGGER_TIME + convertVeltoTime(_SOLENOID_3_VEL)) {
+			//kill solenoid one
+			_SOLENOID_3_STATE = 0;
+			_SOLENOID_3_VEL =0;
+			digitalWrite(MR_SOLENOID_3_PIN, LOW);
+		}
+		if (millis() >= _SOLENOID_4_LAST_TRIGGER_TIME + convertVeltoTime(_SOLENOID_4_VEL)) {
+			//kill solenoid two
+			_SOLENOID_4_STATE = 0;
+			_SOLENOID_4_VEL =0;
+			digitalWrite(MR_SOLENOID_4_PIN, LOW);
+		}
+	} else if(_SOLENOID_PAIR_2_MODE==1){ //paired mode
+		if (millis() >= _SOLENOID_3_LAST_TRIGGER_TIME + convertVeltoTime(_SOLENOID_3_VEL)){//we can release the attack
+			_SOLENOID_3_STATE = 0;
+			_SOLENOID_3_VEL =0;
+			_SOLENOID_4_STATE = 0;
+			_SOLENOID_4_VEL =0;
+			digitalWrite(MR_SOLENOID_3_PIN, LOW);
+			analogWrite(MR_SOLENOID_4_PIN, MR_SOLENOID_PAIRED_RETURN_DUTY_CYCLE);
+		} else {//continue attacking
+			digitalWrite(MR_SOLENOID_3_PIN, HIGH);
+			digitalWrite(MR_SOLENOID_4_PIN, LOW);
+		}
+	}
+
+	//group 5 and 6
+	if (_SOLENOID_PAIR_3_MODE==0) {//normal mode
+		if (millis() >= _SOLENOID_5_LAST_TRIGGER_TIME + convertVeltoTime(_SOLENOID_5_VEL)) {
+			//kill solenoid one
+			_SOLENOID_5_STATE = 0;
+			_SOLENOID_5_VEL =0;
+			digitalWrite(MR_SOLENOID_5_PIN, LOW);
+		}
+		if (millis() >= _SOLENOID_6_LAST_TRIGGER_TIME + convertVeltoTime(_SOLENOID_6_VEL)) {
+			//kill solenoid two
+			_SOLENOID_6_STATE = 0;
+			_SOLENOID_6_VEL =0;
+			digitalWrite(MR_SOLENOID_6_PIN, LOW);
+		}
+	} else if(_SOLENOID_PAIR_3_MODE==1){ //paired mode
+		if (millis() >= _SOLENOID_5_LAST_TRIGGER_TIME + convertVeltoTime(_SOLENOID_5_VEL)){//we can release the attack
+			_SOLENOID_5_STATE = 0;
+			_SOLENOID_5_VEL =0;
+			_SOLENOID_6_STATE = 0;
+			_SOLENOID_6_VEL =0;
+			digitalWrite(MR_SOLENOID_5_PIN, LOW);
+			analogWrite(MR_SOLENOID_6_PIN, MR_SOLENOID_PAIRED_RETURN_DUTY_CYCLE);
+		} else {//continue attacking
+			digitalWrite(MR_SOLENOID_5_PIN, HIGH);
+			digitalWrite(MR_SOLENOID_6_PIN, LOW);
+		}
+	}
+
+	//group 7 and 8
+	if (_SOLENOID_PAIR_4_MODE==0) {//normal mode
+		if (millis() >= _SOLENOID_7_LAST_TRIGGER_TIME + convertVeltoTime(_SOLENOID_7_VEL)) {
+			//kill solenoid one
+			_SOLENOID_7_STATE = 0;
+			_SOLENOID_7_VEL =0;
+			digitalWrite(MR_SOLENOID_7_PIN, LOW);
+		}
+		if (millis() >= _SOLENOID_8_LAST_TRIGGER_TIME + convertVeltoTime(_SOLENOID_8_VEL)) {
+			//kill solenoid two
+			_SOLENOID_8_STATE = 0;
+			_SOLENOID_8_VEL =0;
+			digitalWrite(MR_SOLENOID_8_PIN, LOW);
+		}
+	} else if(_SOLENOID_PAIR_4_MODE==1){ //paired mode
+		if (millis() >= _SOLENOID_7_LAST_TRIGGER_TIME + convertVeltoTime(_SOLENOID_7_VEL)){//we can release the attack
+			_SOLENOID_7_STATE = 0;
+			_SOLENOID_7_VEL =0;
+			_SOLENOID_8_STATE = 0;
+			_SOLENOID_8_VEL =0;
+			digitalWrite(MR_SOLENOID_7_PIN, LOW);
+			analogWrite(MR_SOLENOID_8_PIN, MR_SOLENOID_PAIRED_RETURN_DUTY_CYCLE);
+		} else {//continue attacking
+			digitalWrite(MR_SOLENOID_7_PIN, HIGH);
+			digitalWrite(MR_SOLENOID_8_PIN, LOW);
+		}
+	}
 }
 
 void triggerSolenoid(int number, int velocity) {
@@ -71,7 +217,101 @@ void triggerSolenoid(int number, int velocity) {
 		_SOLENOID_1_LAST_TRIGGER_TIME = millis();
 		_SOLENOID_2_LAST_TRIGGER_TIME = millis();
 		_SOLENOID_1_STATE = 1;
-		_SOLENOID_1_STATE = 0;
+		_SOLENOID_2_STATE = 1;
+		_SOLENOID_1_VEL = velocity;
+		_SOLENOID_2_VEL = 0;
+		digitalWrite(MR_SOLENOID_1_PIN, HIGH);
+		digitalWrite(MR_SOLENOID_2_PIN, LOW);
+	}
+	if ((number == 3 || number == 4) && _SOLENOID_PAIR_2_MODE==1) {//paired mode
+		_SOLENOID_3_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_4_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_3_STATE = 1;
+		_SOLENOID_4_STATE = 1;
+		_SOLENOID_3_VEL = velocity;
+		_SOLENOID_4_VEL = 0;
+		digitalWrite(MR_SOLENOID_3_PIN, HIGH);
+		digitalWrite(MR_SOLENOID_4_PIN, LOW);
+	}
+	if ((number == 5 || number == 6) && _SOLENOID_PAIR_3_MODE==1) {//paired mode
+		_SOLENOID_5_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_6_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_5_STATE = 1;
+		_SOLENOID_6_STATE = 1;
+		_SOLENOID_5_VEL = velocity;
+		_SOLENOID_6_VEL = 0;
+		digitalWrite(MR_SOLENOID_5_PIN, HIGH);
+		digitalWrite(MR_SOLENOID_6_PIN, LOW);
+	}
+	if ((number == 7 || number == 8) && _SOLENOID_PAIR_4_MODE==1) {//paired mode
+		_SOLENOID_7_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_8_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_7_STATE = 1;
+		_SOLENOID_8_STATE = 1;
+		_SOLENOID_7_VEL = velocity;
+		_SOLENOID_8_VEL = 0;
+		digitalWrite(MR_SOLENOID_7_PIN, HIGH);
+		digitalWrite(MR_SOLENOID_8_PIN, LOW);
+	}
+	//trigger standard solenoids
+	if (number==1 && _SOLENOID_PAIR_1_MODE==0){
+		_SOLENOID_1_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_1_STATE = 1;
+		_SOLENOID_1_VEL = velocity;
+		
+		digitalWrite(MR_SOLENOID_1_PIN, HIGH);
+	}
+	if (number==2 && _SOLENOID_PAIR_1_MODE==0){
+		_SOLENOID_2_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_2_STATE = 1;
+		_SOLENOID_2_VEL = velocity;
+
+		digitalWrite(MR_SOLENOID_2_PIN, HIGH);
+	}
+
+	if (number==3 && _SOLENOID_PAIR_2_MODE==0){
+		_SOLENOID_3_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_3_STATE = 1;
+		_SOLENOID_3_VEL = velocity;
+
+		digitalWrite(MR_SOLENOID_3_PIN, HIGH);
+	}
+	if (number==4 && _SOLENOID_PAIR_2_MODE==0){
+		_SOLENOID_4_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_4_STATE = 1;
+		_SOLENOID_4_VEL = velocity;
+
+		digitalWrite(MR_SOLENOID_4_PIN, HIGH);
+	}
+
+	if (number==5 && _SOLENOID_PAIR_3_MODE==0){
+		_SOLENOID_5_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_5_STATE = 1;
+		_SOLENOID_5_VEL = velocity;
+
+		digitalWrite(MR_SOLENOID_5_PIN, HIGH);
+	}
+	if (number==6 && _SOLENOID_PAIR_3_MODE==0){
+		_SOLENOID_6_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_6_STATE = 1;
+		_SOLENOID_6_VEL = velocity;
+
+		digitalWrite(MR_SOLENOID_6_PIN, HIGH);
+	}
+
+	if (number==7 && _SOLENOID_PAIR_4_MODE==0){
+		_SOLENOID_7_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_7_STATE = 1;
+		_SOLENOID_7_VEL = velocity;
+
+		digitalWrite(MR_SOLENOID_7_PIN, HIGH);
+	}
+	if (number==8 && _SOLENOID_PAIR_4_MODE==0){
+		_SOLENOID_8_LAST_TRIGGER_TIME = millis();
+		_SOLENOID_8_STATE = 1;
+		_SOLENOID_8_VEL = velocity;
+
+		digitalWrite(MR_SOLENOID_8_PIN, HIGH);
 	}
 }
 

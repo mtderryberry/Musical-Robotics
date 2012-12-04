@@ -16,4 +16,6 @@
 #define MR_MOTOR_F_PIN 49
 #define MR_MOTOR_R_PIN 50
 
+void MotorSetup();
+
 #endif /* defined(____MR_Motor__) */

@@ -76,7 +76,7 @@ void INIT() {
 	addSetting("Min Velocity", 0, 126);//2
 	addSetting("Max Velocty", 1, 127);//3
 	addSetting("Vel Curve", 1, 126);//4
-	addSetting("Enable THRU", 0, 1);//5
+	addSetting("Enable MIDI THRU", 0, 1);//5
 	addSetting("Backlight", 1, 30);//6
 	addSetting("Sol 1&2 Mode", 0, 1);//7
 	addSetting("Sol 3&4 Mode", 0, 1);//8
@@ -90,6 +90,21 @@ void INIT() {
 
 	//load the rest of the settings into our global variables
 	for (i=0; i<_MR_SETTTINGS_LIST_INDEX; i++) {
+
+		//looks pretty and gives time to handle lots of functionc alls
+		digitalWrite(MR_LED_1_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+		delay(20);               // wait for a second
+		digitalWrite(MR_LED_1_PIN, LOW);    // turn the LED off by making the voltage LOW
+		delay(20);               // wait for a second
+		digitalWrite(MR_LED_2_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+		delay(20);               // wait for a second
+		digitalWrite(MR_LED_2_PIN, LOW);    // turn the LED off by making the voltage LOW
+		delay(20);
+		digitalWrite(MR_LED_3_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+		delay(20);               // wait for a second
+		digitalWrite(MR_LED_3_PIN, LOW);    // turn the LED off by making the voltage LOW
+		delay(20);
+
 		saveSetting(i, MR_SETTINGS_LIST[i].value); //hacky way of reassigning to memory
 	}
 	delay(200);
@@ -97,7 +112,17 @@ void INIT() {
 	IODisplaySetBrightness(EEPROM.read(6));
 	delay(200);
 
-	triggerSolenoid(1, 127);
+	//directly read these to make absolutely sure we have the right values
+	setSolenoidPairMode(1, EEPROM.read(7));
+	setSolenoidPairMode(2, EEPROM.read(8));
+	setSolenoidPairMode(3, EEPROM.read(9));
+	setSolenoidPairMode(4, EEPROM.read(10));
+
+	//enable pins
+	SetupSolenoids();
+
+	//setup motor
+	MotorSetup();
 }
 
 //setup our OS threads
@@ -124,7 +149,7 @@ void THREAD_UPDATE_GRAPHICS() {
 	if (DISPLAY_MENU) DisplayMenu();
 	else DisplayRealTimeStatus();
 
-	//delay(200);
+	delay(2);
 	//yield();
 }
 

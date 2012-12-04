@@ -28,6 +28,11 @@
 
 #define MR_NUM_SOLENOIDS 8
 
+#define MR_SOLENOID_PAIRED_RETURN_DUTY_CYCLE 64
+
+#define MR_SOLENOID_MILLIS_PRESCALER 3
+
+void SetupSolenoids();
 void setSolenoidPairMode(unsigned short int pair, unsigned short int mode);
 void setSolenoidMinOnTime(int value);
 void setSolenoidMaxOnTime(int value);

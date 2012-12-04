@@ -13,6 +13,9 @@ void MotorSetup() {
     pinMode(MR_MOTOR_PWM_PIN, OUTPUT);
     pinMode(MR_MOTOR_F_PIN, OUTPUT);
     pinMode(MR_MOTOR_R_PIN, OUTPUT);
+	digitalWrite(MR_MOTOR_F_PIN, LOW);
+	digitalWrite(MR_MOTOR_R_PIN, LOW);
+	digitalWrite(MR_MOTOR_PWM_PIN, LOW);
 }
 
 void velocityControlMotor(int velocity, bool direction) {

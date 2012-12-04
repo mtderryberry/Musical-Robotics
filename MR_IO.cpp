@@ -222,7 +222,7 @@ void DisplayRealTimeStatus() {
 			strcat(tempbuffer, " ");
 		}
 	}
-
+	strcat(tempbuffer, "  ");
 	//update the buffer
 	SCREEN_BUFFER = tempbuffer;
 }

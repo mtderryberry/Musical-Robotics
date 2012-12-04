@@ -174,7 +174,7 @@ void MIDIHandleNoteOn(int note, int rawVelocity) {
 	//handle MIDI cases
 
 	//programming MIDI
-	if(octave == 1){
+	if (octave == 1){
 		if (notenumber == 0) {
 			DISPLAY_MENU = !DISPLAY_MENU;
 		}
@@ -191,6 +191,18 @@ void MIDIHandleNoteOn(int note, int rawVelocity) {
 			incrimentSetting();
 		}
 	}
+
+	//solenoid triggering
+	if (octave ==4) {
+		if (notenumber == 0) triggerSolenoid(1, scaledVelocity);
+		if (notenumber == 1) triggerSolenoid(2, scaledVelocity);
+		if (notenumber == 2) triggerSolenoid(3, scaledVelocity);
+		if (notenumber == 3) triggerSolenoid(4, scaledVelocity);
+		if (notenumber == 4) triggerSolenoid(5, scaledVelocity);
+		if (notenumber == 5) triggerSolenoid(6, scaledVelocity);
+		if (notenumber == 6) triggerSolenoid(7, scaledVelocity);
+		if (notenumber == 7) triggerSolenoid(8, scaledVelocity);
+	}
 }
 
 void MIDIHandleNoteOff(int note, int scaledVelocity) {
@@ -201,9 +213,9 @@ void MIDIHandleControlChange(int cc, int value) {
 	//update the buffer
 	char tempbuffer[6];
 	strcpy(tempbuffer, "CC");
-	char vel[4];
-	itoa(cc, vel, 10);
-	strcat(tempbuffer, vel);
+	char ccc[4];
+	itoa(cc, ccc, 10);
+	strcat(tempbuffer, ccc);
 	strcat(tempbuffer, " ");
 
 	//update globals
@@ -213,6 +225,8 @@ void MIDIHandleControlChange(int cc, int value) {
 
 	blinkLED(2);
 
+
+	//use control change values
 	if (cc==22) updateStepper(value);
 }
 
