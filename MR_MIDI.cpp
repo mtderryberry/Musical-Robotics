@@ -206,7 +206,34 @@ void MIDIHandleNoteOn(int note, int rawVelocity) {
 }
 
 void MIDIHandleNoteOff(int note, int scaledVelocity) {
-	
+	unsigned short int notenumber = note % 12;
+	//killSolenoid
+	switch(notenumber) {
+		case 0:
+			killSolenoid(1);
+			break;
+		case 1:
+			killSolenoid(2);
+			break;
+		case 2:
+			killSolenoid(3);
+			break;
+		case 3:
+			killSolenoid(4);
+			break;
+		case 4:
+			killSolenoid(5);
+			break;
+		case 5:
+			killSolenoid(6);
+			break;
+		case 6:
+			killSolenoid(7);
+			break;
+		case 7:
+			killSolenoid(8);
+			break;
+	}
 }
 
 void MIDIHandleControlChange(int cc, int value) {

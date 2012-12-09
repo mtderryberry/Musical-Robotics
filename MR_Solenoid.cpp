@@ -212,6 +212,55 @@ void handleSolenoids(){
 	}
 }
 
+void killSolenoid(unsigned short int solenoid) {
+	switch (solenoid) {
+		case 1:
+			digitalWrite(MR_SOLENOID_1_PIN, LOW);
+			_SOLENOID_1_STATE = 0;
+			_SOLENOID_1_VEL = 0;
+			break;
+		case 2:
+			digitalWrite(MR_SOLENOID_2_PIN, LOW);
+			_SOLENOID_2_STATE = 0;
+			_SOLENOID_2_VEL = 0;
+			break;
+		case 3:
+			digitalWrite(MR_SOLENOID_3_PIN, LOW);
+			_SOLENOID_3_STATE = 0;
+			_SOLENOID_3_VEL = 0;
+			break;
+		case 4:
+			digitalWrite(MR_SOLENOID_4_PIN, LOW);
+			_SOLENOID_4_STATE = 0;
+			_SOLENOID_4_VEL = 0;
+			break;
+		case 5:
+			digitalWrite(MR_SOLENOID_5_PIN, LOW);
+			_SOLENOID_5_STATE = 0;
+			_SOLENOID_5_VEL = 0;
+			break;
+		case 6:
+			digitalWrite(MR_SOLENOID_6_PIN, LOW);
+			_SOLENOID_6_STATE = 0;
+			_SOLENOID_6_VEL = 0;
+			break;
+		case 7:
+			digitalWrite(MR_SOLENOID_7_PIN, LOW);
+			_SOLENOID_7_STATE = 0;
+			_SOLENOID_7_VEL = 0;
+			break;
+		case 8:
+			digitalWrite(MR_SOLENOID_8_PIN, LOW);
+			_SOLENOID_8_STATE = 0;
+			_SOLENOID_8_VEL = 0;
+			break;
+
+		default:
+			break;
+	}
+	
+}
+
 void triggerSolenoid(int number, int velocity) {
 	if ((number == 1 || number == 2) && _SOLENOID_PAIR_1_MODE==1) {//paired mode
 		_SOLENOID_1_LAST_TRIGGER_TIME = millis();
