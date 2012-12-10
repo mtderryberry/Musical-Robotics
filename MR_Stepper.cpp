@@ -7,14 +7,17 @@
 //
 
 #include "MR_Stepper.h"
-<<<<<<< HEAD
 int currentDegrees = 0;
+unsigned short int steppermode = 0;
+//0 for shortest path
+//1 for always cw
+//2 for always ccw
 
 void stepperSetup() {
     pinMode(MR_STEPPER_STEP_PIN, OUTPUT);
     pinMode(MR_STEPPER_DIR_PIN, OUTPUT);
 }
-
+  
 void stepMotor(int requestedDegrees) {
     int diff = requestedDegrees - currentDegrees;
     //FIX THIS. DOESN'T FIGURE OUT SHORTEST PATH. Will come back to tomorrow-ish.
@@ -36,9 +39,7 @@ void stepMotor(int requestedDegrees) {
 
 }
 
-=======
 
 void updateStepper(unsigned short int angle) {
 	
 }
->>>>>>> ef2821c6f481ecc9575b503d272a6e97403df131
