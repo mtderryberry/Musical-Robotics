@@ -27,19 +27,19 @@
 
 #define MR_IO_DEFAULT_LCD_BRIGHTNESS 30
 
-#define MR_ENCODER1_LED_RED_PIN 8
+#define MR_ENCODER1_LED_BLUE_PIN 8
 #define MR_ENCODER1_LED_GREEN_PIN 7
-#define MR_ENCODER2_LED_RED_PIN 3
+#define MR_ENCODER2_LED_BLUE_PIN 3
 #define MR_ENCODER2_LED_GREEN_PIN 2
 
-#define MR_ENCODER1_A_PIN 11
-#define MR_ENCODER1_B_PIN 10
-#define MR_ENCODER1_BUTTON_PIN 5
-#define MR_ENCODER2_A_PIN 9
-#define MR_ENCODER2_B_PIN 6
+#define MR_ENCODER1_A_PIN 10
+#define MR_ENCODER1_B_PIN 11
+#define MR_ENCODER1_BUTTON_PIN 9
+#define MR_ENCODER2_A_PIN 6
+#define MR_ENCODER2_B_PIN 5
 #define MR_ENCODER2_BUTTON_PIN 4
 
-#define MR_ENC_DEBOUNCE_DELAY 50
+#define MR_ENC_DEBOUNCE_DELAY 0
 #define MR_LED_BLINK_DELAY_CYCLES 50
 
 extern bool DISPLAY_MENU;
@@ -73,6 +73,7 @@ void IOInitializePins();
 void ToggleMenu();
 void handleLEDs();
 void blinkLED(unsigned short int led);
+void parseEncoders();
 void addSetting(char* n, int m, int x);
 void nextSetting();
 void previousSetting();

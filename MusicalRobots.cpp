@@ -86,7 +86,7 @@ void INIT() {
 	addSetting("S Max On Time", 2, 255);//12
 
 	//initialize initial setting menu value
-	CURRENT_SETTING_SELECTED_VALUE = EEPROM.read(0);
+	CURRENT_SETTING_SELECTED_VALUE = 0;//EEPROM.read(0);
 
 	//load the rest of the settings into our global variables
 	for (i=0; i<_MR_SETTTINGS_LIST_INDEX; i++) {
@@ -109,14 +109,14 @@ void INIT() {
 	}
 	delay(200);
 	//bug fix to establish final brightness
-	IODisplaySetBrightness(EEPROM.read(6));
+	IODisplaySetBrightness(30);//EEPROM.read(6));
 	delay(200);
 
 	//directly read these to make absolutely sure we have the right values
-	setSolenoidPairMode(1, EEPROM.read(7));
-	setSolenoidPairMode(2, EEPROM.read(8));
-	setSolenoidPairMode(3, EEPROM.read(9));
-	setSolenoidPairMode(4, EEPROM.read(10));
+	setSolenoidPairMode(1, 0);//EEPROM.read(7));
+	setSolenoidPairMode(2, 0);//0);//EEPROM.read(8));
+	setSolenoidPairMode(3, 0);//EEPROM.read(9));
+	setSolenoidPairMode(4, 0);//EEPROM.read(10));
 
 	//enable pins
 	SetupSolenoids();
@@ -135,6 +135,8 @@ void THREAD_MIDI_HANDLING() {
 
 //handles buttons and encoders
 void THREAD_GENERIC_IO() {
+	//parse encoders
+	parseEncoders();
 	//impliment debouncing Finite State Machine for toggling menues
 	ToggleMenu();
 	//handle LED blinks

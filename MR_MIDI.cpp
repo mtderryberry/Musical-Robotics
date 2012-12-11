@@ -161,7 +161,8 @@ void MIDIHandleNoteOn(int note, int rawVelocity) {
 	char tempbuffer[6];
 	strcpy(tempbuffer, notechar);
 	char vel[4];
-	itoa(octave, vel, 10);
+	//itoa(octave, vel, 10);
+	sprintf(vel, "%u", octave);
 	strcat(tempbuffer, vel);
 	
 	//update globals
@@ -241,7 +242,8 @@ void MIDIHandleControlChange(int cc, int value) {
 	char tempbuffer[6];
 	strcpy(tempbuffer, "CC");
 	char ccc[4];
-	itoa(cc, ccc, 10);
+	//itoa(cc, ccc, 10);
+	sprintf(ccc, "%u", cc);
 	strcat(tempbuffer, ccc);
 	strcat(tempbuffer, " ");
 

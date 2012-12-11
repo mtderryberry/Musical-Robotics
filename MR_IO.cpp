@@ -7,13 +7,12 @@
 //
 
 #include "MR_IO.h"
-#include <EEPROM.h>
 #include "MR_MIDI.h"
 
 //globals
 bool DISPLAY_MENU = false;
 unsigned long long int _debounce_lastpoll = 0;
-unsigned short int _debounce_button = 0;
+unsigned short int _debounce_button = LOW;
 MR_SETTING MR_SETTINGS_LIST[20];
 unsigned short int _MR_SETTTINGS_LIST_INDEX = 0;
 char* SCREEN_BUFFER = "Ready..."; //where to buffer the text that goes on the screen
@@ -24,6 +23,11 @@ unsigned short int _LED_TIMER_2 = 0;
 unsigned short int _LED_TIMER_3 = 0;
 unsigned short int CURRENT_SETTING_NUMBER = 0;
 unsigned short int CURRENT_SETTING_SELECTED_VALUE = 0;
+
+int ENCODER_A_CURRENT_STATE = LOW;
+int ENCODER_A_LAST_STATE = LOW;
+int ENCODER_B_CURRENT_STATE = LOW;
+int ENCODER_B_LAST_STATE = LOW;
 
 extern short int _MIDI_channel;
 extern short int _MIDI_velocity_min;
@@ -45,7 +49,7 @@ void previousSetting() {
 
 void loadSetting(int index) {
 	if (DISPLAY_MENU) {
-		MR_SETTINGS_LIST[index].value = EEPROM.read(index);
+		//MR_SETTINGS_LIST[index].value = EEPROM.read(index);
 	}
 }
 
@@ -53,7 +57,7 @@ void saveSetting(int index, int value) {
 	if (DISPLAY_MENU) {
 		//so the settings are changed
 		value = constrain(value, 0, 255);
-		EEPROM.write(index, byte(value));
+		//EEPROM.write(index, byte(value));
 
 		//update based on case
 		switch (index) {
@@ -130,6 +134,34 @@ void decrimentSetting() {
 	}
 }
 
+void parseEncoders() {
+	if (DISPLAY_MENU){
+		ENCODER_A_CURRENT_STATE = digitalRead(MR_ENCODER1_A_PIN);
+		if ((ENCODER_A_LAST_STATE == LOW) && (ENCODER_A_CURRENT_STATE == HIGH)) {
+			if (digitalRead(MR_ENCODER1_B_PIN) == HIGH) {
+				//prev setting
+				previousSetting();
+			} else {
+				//next setting
+				nextSetting();
+			}
+		}
+		ENCODER_A_LAST_STATE = ENCODER_A_CURRENT_STATE;
+
+		ENCODER_B_CURRENT_STATE = digitalRead(MR_ENCODER2_A_PIN);
+		if ((ENCODER_B_LAST_STATE == LOW) && (ENCODER_B_CURRENT_STATE == HIGH)) {
+			if (digitalRead(MR_ENCODER2_B_PIN) == HIGH) {
+				//dec setting
+				decrimentSetting();
+			} else {
+				//inc setting
+				incrimentSetting();
+			}
+		}
+		ENCODER_B_LAST_STATE = ENCODER_B_CURRENT_STATE;
+	}
+}
+
 MR_SETTING& _MR_AddGlobalSetting(char* n, int v, int m, int x) {
 	MR_SETTING *temp = new MR_SETTING();
 	temp->title = n;
@@ -141,7 +173,7 @@ MR_SETTING& _MR_AddGlobalSetting(char* n, int v, int m, int x) {
 }
 
 void addSetting(char* n,int m, int x){
-	MR_SETTINGS_LIST[_MR_SETTTINGS_LIST_INDEX++] = _MR_AddGlobalSetting(n, EEPROM.read(_MR_SETTTINGS_LIST_INDEX), m, x);
+	MR_SETTINGS_LIST[_MR_SETTTINGS_LIST_INDEX++] = _MR_AddGlobalSetting(n, 1,m,x);//EEPROM.read(_MR_SETTTINGS_LIST_INDEX), m, x);
 }
 
 void IOSetupLCD() {
@@ -192,11 +224,17 @@ void DisplayMenu() {
 
 	char vel[4];
 	int tempvel = CURRENT_SETTING_SELECTED_VALUE;
-	itoa(tempvel, vel, 10);
+	//itoa(tempvel, vel, 10);
+	sprintf(vel, "%u", tempvel);
 	strcat(tempbuffer, vel);
 
 	//update the buffer
 	SCREEN_BUFFER = tempbuffer;
+
+	digitalWrite(MR_ENCODER1_LED_GREEN_PIN, LOW);
+	digitalWrite(MR_ENCODER2_LED_GREEN_PIN, LOW);
+	digitalWrite(MR_ENCODER1_LED_BLUE_PIN, HIGH);
+	digitalWrite(MR_ENCODER2_LED_BLUE_PIN, HIGH);
 }
 
 void DisplayRealTimeStatus() {
@@ -208,7 +246,8 @@ void DisplayRealTimeStatus() {
 	
 	char vel[4];
 	int tempvel = MIDI_NOTE_VELOCITY_VAL;
-	itoa(tempvel, vel, 10);
+	//itoa(tempvel, vel, 10);
+	sprintf(vel, "%u", tempvel);
 	strcat(tempbuffer, vel);
 
 	int i;
@@ -225,18 +264,26 @@ void DisplayRealTimeStatus() {
 	strcat(tempbuffer, "  ");
 	//update the buffer
 	SCREEN_BUFFER = tempbuffer;
+
+	digitalWrite(MR_ENCODER1_LED_GREEN_PIN, HIGH);
+	digitalWrite(MR_ENCODER2_LED_GREEN_PIN, HIGH);
+	digitalWrite(MR_ENCODER1_LED_BLUE_PIN, LOW);
+	digitalWrite(MR_ENCODER2_LED_BLUE_PIN, LOW);
 }
 
 void ToggleMenu() {
-	if (_debounce_lastpoll > millis() + MR_ENC_DEBOUNCE_DELAY) {
+	if (_debounce_lastpoll <= millis() + MR_ENC_DEBOUNCE_DELAY) {
 		_debounce_lastpoll=millis();
 		//read both pins
 		unsigned short int val = digitalRead(MR_ENCODER1_BUTTON_PIN);
-		if (val==0) val = digitalRead(MR_ENCODER2_BUTTON_PIN);
+		if (val==LOW) val = digitalRead(MR_ENCODER2_BUTTON_PIN);
 
 		//impliment only rising edge trigger
-		if (val == 1 && _debounce_button == 0) {
+		if (val == HIGH && _debounce_button == LOW) {
 			//toggle diplay menu
+			blinkLED(1);
+			blinkLED(2);
+			blinkLED(3);
 			DISPLAY_MENU = !DISPLAY_MENU;
 		}
 
@@ -280,9 +327,9 @@ void IOInitializePins() {
 	pinMode(MR_LED_2_PIN, OUTPUT);
 	pinMode(MR_LED_3_PIN, OUTPUT);
 
-	pinMode(MR_ENCODER1_LED_RED_PIN, OUTPUT);
+	pinMode(MR_ENCODER1_LED_BLUE_PIN, OUTPUT);
 	pinMode(MR_ENCODER1_LED_GREEN_PIN, OUTPUT);
-	pinMode(MR_ENCODER2_LED_RED_PIN, OUTPUT);
+	pinMode(MR_ENCODER2_LED_BLUE_PIN, OUTPUT);
 	pinMode(MR_ENCODER2_LED_GREEN_PIN, OUTPUT);
 
 	pinMode(MR_ENCODER1_A_PIN, INPUT);
@@ -291,4 +338,9 @@ void IOInitializePins() {
 	pinMode(MR_ENCODER2_A_PIN, INPUT);
 	pinMode(MR_ENCODER2_B_PIN, INPUT);
 	pinMode(MR_ENCODER2_BUTTON_PIN, INPUT);
+
+	digitalWrite(MR_ENCODER1_LED_GREEN_PIN, LOW);
+	digitalWrite(MR_ENCODER2_LED_GREEN_PIN, LOW);
+	digitalWrite(MR_ENCODER1_LED_BLUE_PIN, LOW);
+	digitalWrite(MR_ENCODER2_LED_BLUE_PIN, LOW);
 }
