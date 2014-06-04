@@ -28,8 +28,8 @@
 
 
 #define COMPILE_MIDI_IN         1           // Set this setting to 1 to use the MIDI input.
-#define COMPILE_MIDI_OUT        1           // Set this setting to 1 to use the MIDI output. 
-#define COMPILE_MIDI_THRU       1           // Set this setting to 1 to use the MIDI Soft Thru feature
+#define COMPILE_MIDI_OUT        0           // Set this setting to 1 to use the MIDI output. 
+#define COMPILE_MIDI_THRU       0           // Set this setting to 1 to use the MIDI Soft Thru feature
                                             // Please note that the Thru will work only when both COMPILE_MIDI_IN and COMPILE_MIDI_OUT set to 1.
 
 
@@ -37,7 +37,7 @@
                                             // to use a different serial port for MIDI I/O.
 
 
-#define USE_RUNNING_STATUS		0			// Running status enables short messages when sending multiple values
+#define USE_RUNNING_STATUS	0	    // Running status enables short messages when sending multiple values
                                             // of the same type and channel.
                                             // Set to 0 if you have troubles with controlling you hardware.
 
@@ -45,7 +45,7 @@
 #define USE_CALLBACKS           1           // Set this to 1 if you want to use callback handlers (to bind your functions to the library).
                                             // To use the callbacks, you need to have COMPILE_MIDI_IN set to 1
 
-#define USE_1BYTE_PARSING       0           // Each call to MIDI.read will only parse one byte (might be faster).
+#define USE_1BYTE_PARSING       1           // Each call to MIDI.read will only parse one byte (might be faster).
 
 
 // END OF CONFIGURATION AREA 
